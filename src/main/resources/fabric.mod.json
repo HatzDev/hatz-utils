@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "id": "hutil",
+  "version": "${version}",
+
+  "name": "Hatz Utils",
+  "description": "This is a simple API that I developed to help me with my mods, and also help other people who want to use it.",
+  "authors": [
+    "Hatsuya"
+  ],
+  "contact": {
+    "discord": "hatsuya.",
+    "sources": "https://github.com/FabricMC/fabric-example-mod"
+  },
+
+  "license": "CC0-1.0",
+  "icon": "assets/hutil/icon.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "net.hasuya.hutil.HutilMain"
+    ],
+    "client": [
+      "net.hasuya.hutil.HutilClient"
+    ],
+    "server": [
+      "net.hasuya.hutil.HutilServer"
+    ]
+  },
+  "mixins": [
+    "hutil.mixins.json"
+  ],
+
+  "depends": {
+    "fabricloader": "0.14.22",
+    "fabric-api": "*",
+    "minecraft": "~1.20.1",
+    "java": ">=17"
+  },
+  "suggests": {
+    "another-mod": "*"
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "variants": {
+    "": { "model": "hutil:block/copycat_block"}
+  }
+}
