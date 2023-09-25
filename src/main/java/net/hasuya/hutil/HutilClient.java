@@ -49,7 +49,7 @@ public class HutilClient implements ClientModInitializer {
                 be.setBlockNBT(nbt);
                 be.setBlockColor(color);
 
-                final Identifier blockToCopyID = Identifier.tryParse(nbt); // Usamos o NBT diretamente
+                final Identifier blockToCopyID = Identifier.tryParse(nbt);
                 final Block blockToCopy = Registries.BLOCK.get(blockToCopyID);
                 final BlockState blockToCopyState = blockToCopy.getDefaultState();
 
