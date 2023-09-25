@@ -21,7 +21,7 @@ public class HutilClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        Hutil.registerCopycat("copycat_block");
+        Hutil.registerCopycat("hutil", "copycat_block");
 
         for (String name: Hutil.getCopycatsRegistry()) {
             ModelLoadingPlugin.register(pluginContext -> {

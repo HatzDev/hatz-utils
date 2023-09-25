@@ -26,7 +26,7 @@ import java.util.List;
 
 public class Hutil {
     private static List<String> copycatsRegistry = new ArrayList<>();
-    public static final Identifier COPYCAT_BLOCK_ID = new Identifier("hutil:copycat_block");
+    public static List<Identifier> copycats = new ArrayList<>();
 
     public ActionResult setCopycatByItem(BlockPos pos, World world, ItemStack handItem) {
         if (!(handItem.getItem() instanceof BlockItem blockItem))
@@ -39,7 +39,7 @@ public class Hutil {
         Block blockOfItem = blockItem.getBlock();
         Identifier blockOfItemId = Registries.BLOCK.getId(blockOfItem);
 
-        if (!blockOfItem.getDefaultState().isFullCube(world, pos) || blockOfItemId.equals(Hutil.COPYCAT_BLOCK_ID))
+        if (!blockOfItem.getDefaultState().isFullCube(world, pos) || copycats.contains(blockOfItemId))
             return ActionResult.FAIL;
 
         Identifier blockToCopyID = Identifier.tryParse(be.getBlockNBT());
@@ -63,7 +63,7 @@ public class Hutil {
                 ServerPlayNetworking.send(player, HutilClient.COPYCAT_PACKET, buf);
             }
 
-            if (!blockToCopyID.equals(Hutil.COPYCAT_BLOCK_ID)) {
+            if (!copycats.contains(blockOfItemId)) {
                 ItemStack droppedItemStack = new ItemStack(blockToCopy.asItem());
                 ItemEntity itemEntity = new ItemEntity(world, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, droppedItemStack);
                 world.spawnEntity(itemEntity);
@@ -77,8 +77,9 @@ public class Hutil {
         return ActionResult.SUCCESS;
     }
 
-    public static void registerCopycat(String blockName){
+    public static void registerCopycat(String modID, String blockName){
         copycatsRegistry.add(blockName);
+        copycats.add(new Identifier(modID, blockName));
     }
 
     public static List<String> getCopycatsRegistry(){

@@ -59,7 +59,7 @@ public class CopycatBlock extends Block implements BlockEntityProvider, BlockCol
             Identifier blockToCopyID = Identifier.tryParse(copycatBlockEntity.getBlockNBT());
             Block blockToCopy = Registries.BLOCK.get(blockToCopyID);
 
-            if (!blockToCopyID.equals(Hutil.COPYCAT_BLOCK_ID)) {
+            if (!Hutil.copycats.contains(blockToCopyID)) {
                 return List.of(new ItemStack(blockToCopy.asItem()), new ItemStack(this.asItem()));
             }
 
@@ -73,7 +73,7 @@ public class CopycatBlock extends Block implements BlockEntityProvider, BlockCol
     public float getAmbientOcclusionLightLevel(BlockState state, BlockView world, BlockPos pos) {
         CopycatBlockEntity copycatBlockEntity = (CopycatBlockEntity) world.getBlockEntity(pos);
 
-        if (copycatBlockEntity != null && !Identifier.tryParse(copycatBlockEntity.getBlockNBT()).equals(Hutil.COPYCAT_BLOCK_ID)) {
+        if (copycatBlockEntity != null && !Hutil.copycats.contains(Identifier.tryParse(copycatBlockEntity.getBlockNBT()))) {
             Block blockToCopy = Registries.BLOCK.get(Identifier.tryParse(copycatBlockEntity.getBlockNBT()));
             return blockToCopy.getAmbientOcclusionLightLevel(state, world, pos);
         }
