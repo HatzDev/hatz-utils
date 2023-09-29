@@ -1,6 +1,7 @@
 package net.hasuya.hutil.utils;
 
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
+import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.hasuya.hutil.HutilMain;
@@ -8,6 +9,7 @@ import net.hasuya.hutil.blocks.CopycatBlock;
 import net.hasuya.hutil.blocks.CopycatBlockEntity;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.item.BlockItem;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
@@ -18,6 +20,7 @@ public class HutilRegistry {
 
     public static final void registerRegistries(){
         Registry.register(Registries.BLOCK, new Identifier(HutilMain.MODID, "copycat_block"), COPYCAT_BLOCK);
+        //Registry.register(Registries.ITEM, new Identifier(HutilMain.MODID, "copycat_block"), new BlockItem(COPYCAT_BLOCK, new FabricItemSettings()));
         ColorProviderRegistry.BLOCK.register(COPYCAT_BLOCK, COPYCAT_BLOCK);
 
         COPYCAT_BLOCKENTITY = Registry.register(Registries.BLOCK_ENTITY_TYPE, new Identifier(HutilMain.MODID, "copycat_blockentity"),
