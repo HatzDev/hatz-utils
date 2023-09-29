@@ -88,8 +88,10 @@ public class CopycatBlock extends Block implements BlockEntityProvider, BlockCol
         Identifier blockToCopyID = Identifier.tryParse(be.getBlockNBT());
         Block blockToCopy = Registries.BLOCK.get(blockToCopyID);
 
-        if (blockOfItem == blockToCopy || Hutil.copycats.contains(blockOfItemId) || !blockToCopy.getDefaultState().isFullCube(world, pos))
+        if (blockOfItem == blockToCopy || Hutil.copycats.contains(blockOfItemId) || !blockToCopy.getDefaultState().isFullCube(world, pos)) {
+            world.playSound(null, pos, blockOfItem.getSoundGroup(blockOfItem.getDefaultState()).getPlaceSound(), SoundCategory.BLOCKS, 1, 0.8f);
             return ActionResult.FAIL;
+        }
 
         if (!Hutil.copycats.contains(Registries.ITEM.getId(blockToCopy.asItem()))) {
             world.spawnEntity(new ItemEntity(world, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, new ItemStack(blockToCopy.asItem())));
@@ -106,8 +108,10 @@ public class CopycatBlock extends Block implements BlockEntityProvider, BlockCol
     private ActionResult setLayer(CopycatBlockEntity be, BlockPos pos, World world, ItemStack handItem, SoundEvent soundEvent, int layer){
         Item layerItem = itemLayers.get(be.getBlockLayer());
 
-        if(layerItem == handItem.getItem())
+        if(layerItem == handItem.getItem() || handItem.isEmpty()){
+            world.playSound(null, pos, soundEvent, SoundCategory.BLOCKS, 1, 0.8f);
             return ActionResult.FAIL;
+        }
 
         ItemEntity itemEntity = new ItemEntity(world, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, layerItem.getDefaultStack());
         world.spawnEntity(itemEntity);
