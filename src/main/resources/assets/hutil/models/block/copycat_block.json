@@ -5,6 +5,8 @@
 		"2": "hutil:block/framed_block_top",
 		"3": "hutil:block/framed_block_down",
 		"4": "hutil:block/framed_block_overlay",
+		"5": "hutil:block/framed_block_overlay_top",
+		"6": "hutil:block/framed_block_overlay_down",
 		"particle": "hutil:block/framed_block"
 	},
 	"elements": [
@@ -26,10 +28,12 @@
 			"to": [16, 16, 16],
 			"rotation": {"angle": 0, "axis": "y", "origin": [1, 0, 1]},
 			"faces": {
-				"north": {"uv": [0, 0, 16, 16], "texture": "#4", "cullface": "north"},
-				"east": {"uv": [0, 0, 16, 16], "texture": "#4", "cullface": "east"},
-				"south": {"uv": [0, 0, 16, 16], "texture": "#4", "cullface": "south"},
-				"west": {"uv": [0, 0, 16, 16], "texture": "#4", "cullface": "west"}
+				"north": {"uv": [0, 0, 16, 16], "texture": "#4", "cullface": "north", "tintindex": 0},
+				"east": {"uv": [0, 0, 16, 16], "texture": "#4", "cullface": "east", "tintindex": 0},
+				"south": {"uv": [0, 0, 16, 16], "texture": "#4", "cullface": "south", "tintindex": 0},
+				"west": {"uv": [0, 0, 16, 16], "texture": "#4", "cullface": "west", "tintindex": 0},
+				"up": {"uv": [0, 0, 16, 16], "texture": "#5", "cullface": "up", "tintindex": 0},
+				"down": {"uv": [0, 0, 16, 16], "texture": "#6", "cullface": "down", "tintindex": 0}
 			}
 		}
 	],

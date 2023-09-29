@@ -14,7 +14,9 @@ import net.minecraft.client.render.model.BakedQuad;
 import net.minecraft.client.render.model.json.ModelOverrideList;
 import net.minecraft.client.render.model.json.ModelTransformation;
 import net.minecraft.client.texture.Sprite;
+import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.registry.Registries;
+import net.minecraft.screen.PlayerScreenHandler;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -30,12 +32,25 @@ public class CopycatModel implements BakedModel {
     private final Identifier[] textureNames = new Identifier[]{
             new Identifier("hutil:block/framed_block_down"),
             new Identifier("hutil:block/framed_block_top"),
-            new Identifier("hutil:block/framed_block"),
+            new Identifier("hutil:block/framed_block")
+    };
+    private final Identifier[] overlayTextureNames = new Identifier[]{
+            new Identifier("hutil:block/framed_block_overlay_down"),
+            new Identifier("hutil:block/framed_block_overlay_top"),
             new Identifier("hutil:block/framed_block_overlay")
     };
 
+    private final SpriteAtlasTexture atlas;
+    private final BakedModelManager modelManager;
+    private final Renderer renderer;
+
     public CopycatModel(BakedModel originalModel) {
+        MinecraftClient client = MinecraftClient.getInstance();
         this.originalModel = originalModel;
+        this.atlas = client.getBakedModelManager().getAtlas(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE);
+        this.modelManager = client.getBakedModelManager();
+        this.renderer = RendererAccess.INSTANCE.getRenderer();
+
     }
 
     @Override
@@ -44,46 +59,79 @@ public class CopycatModel implements BakedModel {
         if(copycatBlockEntity == null)
             return;
 
-        final MinecraftClient client = MinecraftClient.getInstance();
-        final BakedModelManager modelManager = client.getBakedModelManager();
-        final Renderer renderer = RendererAccess.INSTANCE.getRenderer();
-        final Direction[] directions = Direction.values();
-
         final BlockState copycatBlockState = copycatBlockEntity.getCachedState();
 
         final Identifier blockToCopyID = Identifier.tryParse(copycatBlockEntity.getBlockNBT());
         final Block blockToCopy = Registries.BLOCK.get(blockToCopyID);
         final BlockState blockToCopyState = blockToCopy.getDefaultState();
         final BakedModel blockToCopyModel = modelManager.getBlockModels().getModel(blockToCopyState);
-        Sprite[] blockToCopySprites = new Sprite[4];
+        Sprite[] blockToCopySprites = new Sprite[3];
+        Sprite[] blockToCopyOverlaySprites = new Sprite[3];
+
+        final int blockLayer = copycatBlockEntity.getBlockLayer();
+        final Sprite[] spriteLayers = new Sprite[]{
+                atlas.getSprite(new Identifier("hutil:block/framed_block_overlay")),
+                atlas.getSprite(new Identifier("hutil:block/grass_top_overlay")),
+                atlas.getSprite(new Identifier("hutil:block/grass_side_overlay")),
+                atlas.getSprite(new Identifier("hutil:block/snow_top_overlay")),
+                atlas.getSprite(new Identifier("hutil:block/snow_side_overlay")),
+                atlas.getSprite(new Identifier("hutil:block/moss_top_overlay")),
+                atlas.getSprite(new Identifier("hutil:block/moss_side_overlay")),
+                atlas.getSprite(new Identifier("hutil:block/moss_full_overlay")),
+        };
 
         for (Direction direction : Direction.values()) {
             List<BakedQuad> blockToCopyQuads = getBlockToCopyQuads(blockToCopyModel, blockToCopyState, direction, copycatBlockState, randomSupplier);
 
-            if (blockToCopyQuads != null && !blockToCopyQuads.isEmpty() && direction.ordinal() < 4) {
-                blockToCopySprites[direction.ordinal()] = blockToCopyQuads.get(direction.ordinal() > 2 && blockToCopyQuads.size() > 1 ? 1 : 0).getSprite();
-            }
-        }
-
-        for (Direction direction : directions) {
-            List<BakedQuad> blockToCopyQuads = getBlockToCopyQuads(blockToCopyModel, blockToCopyState, direction, copycatBlockState, randomSupplier);
-            List<BakedQuad> copycatQuads = originalModel.getQuads(copycatBlockState, direction, randomSupplier.get());
-
-            if (blockToCopyQuads != null) {
-                int maxQuadsToEmit = Math.min(2, blockToCopyQuads.size());
-                for (int j = 0; j < maxQuadsToEmit && j < copycatQuads.size(); j++) {
-                    BakedQuad copycatQuad = copycatQuads.get(j);
-                    Sprite spriteForQuad = getSpriteForQuad(copycatQuad, blockToCopySprites);
-                    if (spriteForQuad != null) {
-                        int colorIndex = blockToCopyQuads.get(j).getColorIndex();
-                        boolean isTransparent = blockToCopyState.isTransparent(blockView, pos);
-                        BlendMode blendMode = isTransparent ? BlendMode.TRANSLUCENT : BlendMode.CUTOUT_MIPPED;
-
-                        RenderMaterial material = renderer.materialFinder().blendMode(blendMode).find();
-                        context.getEmitter().fromVanilla(new BakedQuad(getTextureUV(copycatQuad, spriteForQuad), colorIndex, direction, spriteForQuad, true), material, direction).emit();
-                    }
+            if (direction.ordinal() < 3) {
+                if (blockToCopyQuads.size() > 1) {
+                    blockToCopyOverlaySprites[direction.ordinal()] = blockToCopyQuads.get(1).getSprite();
+                }
+                if (!blockToCopyQuads.isEmpty()) {
+                    blockToCopySprites[direction.ordinal()] = blockToCopyQuads.get(0).getSprite();
                 }
             }
+
+            switch (blockLayer) {
+                case 1 -> {
+                    blockToCopyOverlaySprites[0] = spriteLayers[0];
+                    blockToCopyOverlaySprites[1] = spriteLayers[1];
+                    blockToCopyOverlaySprites[2] = spriteLayers[2];
+                }
+                case 2 -> {
+                    blockToCopyOverlaySprites[0] = spriteLayers[0];
+                    blockToCopyOverlaySprites[1] = spriteLayers[3];
+                    blockToCopyOverlaySprites[2] = spriteLayers[4];
+                }
+                case 3 -> {
+                    blockToCopyOverlaySprites[0] = spriteLayers[0];
+                    blockToCopyOverlaySprites[1] = spriteLayers[5];
+                    blockToCopyOverlaySprites[2] = spriteLayers[6];
+                }
+                case 4 -> {
+                    blockToCopyOverlaySprites[0] = spriteLayers[7];
+                    blockToCopyOverlaySprites[1] = spriteLayers[7];
+                    blockToCopyOverlaySprites[2] = spriteLayers[7];
+                }
+            }
+
+            List<BakedQuad> copycatQuads = originalModel.getQuads(copycatBlockState, direction, randomSupplier.get());
+            renderQuad(context, blockToCopyState, blockView, pos, renderer, direction, copycatQuads, blockToCopySprites, textureNames, 0, blockToCopyQuads.get(0).getColorIndex());
+            if(copycatQuads.size() > 1){
+                int colorIndex = (blockLayer == 0 && blockToCopyQuads.size() > 1) ? blockToCopyQuads.get(1).getColorIndex() : (blockLayer == 1) ? copycatQuads.get(1).getColorIndex() : -1;
+                renderQuad(context, blockToCopyState, blockView, pos, renderer, direction, copycatQuads, blockToCopyOverlaySprites, overlayTextureNames, 1, colorIndex);
+            }
+        }
+    }
+
+    private void renderQuad(RenderContext context, BlockState blockToCopyState, BlockRenderView blockView, BlockPos pos, Renderer renderer, Direction direction, List<BakedQuad> copycatQuads, Sprite[] sprites, Identifier[] textureNames, int index, int colorIndex) {
+        BakedQuad copycatQuad = copycatQuads.get(index);
+        Sprite spriteForQuad = getSpriteForQuad(copycatQuad, sprites, textureNames);
+        if (spriteForQuad != null) {
+            boolean isTransparent = blockToCopyState.isTransparent(blockView, pos);
+            BlendMode blendMode = isTransparent ? BlendMode.TRANSLUCENT : BlendMode.CUTOUT_MIPPED;
+            RenderMaterial material = renderer.materialFinder().blendMode(blendMode).find();
+            context.getEmitter().fromVanilla(new BakedQuad(getTextureUV(copycatQuad, spriteForQuad), colorIndex, direction, spriteForQuad, true), material, direction).emit();
         }
     }
 
@@ -92,7 +140,7 @@ public class CopycatModel implements BakedModel {
         return blockToCopyQuads.isEmpty() ? originalModel.getQuads(copycatBlockState, direction, randomSupplier.get()) : blockToCopyQuads;
     }
 
-    private Sprite getSpriteForQuad(BakedQuad quad, Sprite[] sprites) {
+    private Sprite getSpriteForQuad(BakedQuad quad, Sprite[] sprites, Identifier[] textureNames) {
         Identifier quadId = quad.getSprite().getContents().getId();
         for (int i = 0; i < textureNames.length; i++) {
             if(quadId.equals(textureNames[i])){

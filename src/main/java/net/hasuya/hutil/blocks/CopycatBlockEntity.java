@@ -10,6 +10,7 @@ public class CopycatBlockEntity extends BlockEntity {
 
     private String blockNBT = "hutil:copycat_block";
     private int blockColor = 0xFFFFFFFF;
+    private int blockLayer = 0;
 
     public CopycatBlockEntity(BlockPos pos, BlockState state) {
         super(HutilRegistry.COPYCAT_BLOCKENTITY, pos, state);
@@ -19,6 +20,7 @@ public class CopycatBlockEntity extends BlockEntity {
     public void writeNbt(NbtCompound nbt) {
         nbt.putString("BlockNBT", this.blockNBT);
         nbt.putInt("BlockColor", this.blockColor);
+        nbt.putInt("BlockLayer", this.blockLayer);
     }
 
     @Override
@@ -26,6 +28,7 @@ public class CopycatBlockEntity extends BlockEntity {
         super.readNbt(nbt);
         blockNBT = nbt.getString("BlockNBT");
         blockColor = nbt.getInt("BlockColor");
+        blockLayer = nbt.getInt("BlockLayer");
     }
 
     public void setBlockNBT(String blockNBT) {
@@ -44,6 +47,14 @@ public class CopycatBlockEntity extends BlockEntity {
 
     public int getBlockColor() {
         return blockColor;
+    }
+
+    public void setBlockLayer(int blockLayer) {
+        this.blockLayer = blockLayer;
+    }
+
+    public int getBlockLayer() {
+        return blockLayer;
     }
 
     @Override
